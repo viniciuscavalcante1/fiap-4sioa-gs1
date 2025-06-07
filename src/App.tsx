@@ -27,7 +27,6 @@ const App = () => (
           <Route path="/support-map" element={<SupportMap />} />
           <Route path="/how-to-help" element={<HowToHelp />} />
           <Route path="/preparedness" element={<Preparedness />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

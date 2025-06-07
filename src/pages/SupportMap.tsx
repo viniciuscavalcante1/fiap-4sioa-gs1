@@ -1,5 +1,6 @@
-
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import { MapPin, Filter, List, Navigation } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -8,82 +9,55 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { Skeleton } from "@/components/ui/skeleton";
 
-// Mock support points data
-const supportPoints = [
-  {
-    id: 1,
-    name: "Ginásio Municipal Centro",
-    type: "shelter",
-    address: "Rua das Flores, 123 - Centro, Porto Alegre/RS",
-    phone: "(51) 3333-4444",
-    services: ["Abrigo temporário", "Alimentação", "Primeiros socorros"],
-    capacity: "200 pessoas",
-    status: "available",
-    hours: "24h"
-  },
-  {
-    id: 2,
-    name: "Hospital Regional Norte",
-    type: "hospital",
-    address: "Av. Brasil, 456 - Zona Norte, Porto Alegre/RS",
-    phone: "(51) 3555-6666",
-    services: ["Emergência 24h", "UTI", "Cirurgia"],
-    status: "available",
-    hours: "24h"
-  },
-  {
-    id: 3,
-    name: "Centro de Doações Solidário",
-    type: "donation_collection",
-    address: "Rua da Esperança, 789 - Bela Vista, Porto Alegre/RS",
-    phone: "(51) 3777-8888",
-    services: ["Coleta de alimentos", "Roupas", "Material de higiene"],
-    neededItems: ["Água potável", "Alimentos não perecíveis", "Cobertores"],
-    status: "urgent",
-    hours: "8h às 18h"
-  },
-  {
-    id: 4,
-    name: "Posto de Distribuição Vila Nova",
-    type: "aid_distribution",
-    address: "Praça da Comunidade, 321 - Vila Nova, Porto Alegre/RS",
-    phone: "(51) 3999-0000",
-    services: ["Distribuição de alimentos", "Kit higiene", "Roupas"],
-    status: "available",
-    hours: "9h às 17h"
-  },
-  {
-    id: 5,
-    name: "UBS Centro",
-    type: "health_clinic",
-    address: "Rua da Saúde, 654 - Centro, Porto Alegre/RS",
-    phone: "(51) 3111-2222",
-    services: ["Consultas básicas", "Vacinação", "Medicamentos"],
-    status: "available",
-    hours: "7h às 19h"
+interface SupportPoint {
+  id: number;
+  name: string;
+  type: string;
+  address: string;
+  phone?: string;
+  services: string[];
+  capacity?: string;
+  status: string;
+  hours: string;
+  needed_items?: string[];
+  latitude?: number;
+  longitude?: number;
+}
+
+const fetchSupportPoints = async (): Promise<SupportPoint[]> => {
+  const response = await fetch("http://127.0.0.1:8000/api/support-points");
+  if (!response.ok) {
+    throw new Error("Erro ao buscar os pontos de apoio da API");
   }
-];
+  return response.json();
+};
 
 const SupportMap = () => {
+  const { data: supportPoints = [], isLoading, isError } = useQuery<SupportPoint[]>({
+    queryKey: ["supportPoints"],
+    queryFn: fetchSupportPoints,
+  });
+
   const [typeFilter, setTypeFilter] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
-  const [viewMode, setViewMode] = useState<"list" | "map">("list");
+  const [viewMode, setViewMode] = useState<"list" | "map">("map");
 
   const getTypeInfo = (type: string) => {
     switch (type) {
       case "shelter":
-        return { label: "Abrigo", color: "bg-blue-500 text-white", icon: "🏠" };
+        return { label: "Abrigo", color: "bg-blue-100 text-blue-800", icon: "🏠" };
       case "hospital":
-        return { label: "Hospital", color: "bg-red-500 text-white", icon: "🏥" };
+        return { label: "Hospital", color: "bg-red-100 text-red-800", icon: "🏥" };
       case "donation_collection":
-        return { label: "Coleta de Doações", color: "bg-green-500 text-white", icon: "📦" };
+        return { label: "Coleta de Doações", color: "bg-green-100 text-green-800", icon: "📦" };
       case "aid_distribution":
-        return { label: "Distribuição", color: "bg-purple-500 text-white", icon: "🤝" };
+        return { label: "Distribuição", color: "bg-purple-100 text-purple-800", icon: "🤝" };
       case "health_clinic":
-        return { label: "Posto de Saúde", color: "bg-orange-500 text-white", icon: "🏥" };
+        return { label: "Posto de Saúde", color: "bg-orange-100 text-orange-800", icon: "🏥" };
       default:
-        return { label: "Outro", color: "bg-gray-500 text-white", icon: "📍" };
+        return { label: "Outro", color: "bg-gray-100 text-gray-800", icon: "📍" };
     }
   };
 
@@ -108,21 +82,20 @@ const SupportMap = () => {
   });
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
       <Header />
       
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-8 flex-grow">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-800 mb-4 flex items-center gap-3">
             <MapPin className="w-8 h-8 text-red-600" />
             Mapa de Apoio
           </h1>
           <p className="text-gray-600">
-            Encontre abrigos, pontos de coleta, hospitais e locais de distribuição de ajuda.
+            Ajude. E seja ajudado. Encontre abrigos, pontos de coleta e hospitais.
           </p>
         </div>
 
-        {/* Filters and View Toggle */}
         <div className="bg-white rounded-lg p-6 shadow-sm mb-6">
           <div className="flex flex-col md:flex-row gap-4 mb-4">
             <div className="flex-1">
@@ -157,7 +130,7 @@ const SupportMap = () => {
               onClick={() => setViewMode("list")}
             >
               <List className="w-4 h-4 mr-2" />
-              Lista
+              Ver na Lista
             </Button>
             <Button
               variant={viewMode === "map" ? "default" : "outline"}
@@ -165,23 +138,55 @@ const SupportMap = () => {
               onClick={() => setViewMode("map")}
             >
               <MapPin className="w-4 h-4 mr-2" />
-              Mapa
+              Ver no Mapa
             </Button>
           </div>
         </div>
 
-        {viewMode === "map" && (
-          <div className="bg-white rounded-lg p-6 shadow-sm mb-6 h-96 flex items-center justify-center">
-            <div className="text-center">
-              <MapPin className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-600 mb-2">Mapa Interativo</h3>
-              <p className="text-gray-500">Integração com mapas será implementada em breve.</p>
-            </div>
+        {isLoading && (
+          <div className="text-center py-12">
+            <p>Carregando mapa e pontos de apoio...</p>
+            <Skeleton className="h-96 w-full mt-4" />
           </div>
         )}
 
-        {/* Support Points List */}
-        {viewMode === "list" && (
+        {isError && (
+          <div className="text-center py-12 bg-red-50 text-red-700 rounded-lg">
+            <MapPin className="w-12 h-12 mx-auto mb-4" />
+            <h3 className="text-lg font-medium mb-2">Erro ao carregar os dados</h3>
+            <p>Não foi possível buscar os pontos de apoio. Tente novamente mais tarde.</p>
+          </div>
+        )}
+
+        {!isLoading && !isError && viewMode === "map" && (
+          <div className="bg-white rounded-lg p-1 shadow-sm mb-6 h-[500px]">
+            <MapContainer center={[-23.5505, -46.6333]} zoom={11} scrollWheelZoom={true} style={{ height: "100%", width: "100%", borderRadius: "inherit" }}>
+              <TileLayer
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              />
+              {filteredPoints.map(point => (
+                point.latitude && point.longitude && (
+                  <Marker key={point.id} position={[point.latitude, point.longitude]}>
+                    <Popup>
+                      <div className="space-y-1">
+                        <p className="font-bold">{point.name}</p>
+                        <p className="text-sm">{point.address}</p>
+                        <div className="flex gap-2 pt-1">
+                          <Badge className={getTypeInfo(point.type).color}>{getTypeInfo(point.type).label}</Badge>
+                          <Badge className={getStatusInfo(point.status).color}>{getStatusInfo(point.status).label}</Badge>
+                        </div>
+                        <p className="text-sm pt-1">Horário: {point.hours}</p>
+                      </div>
+                    </Popup>
+                  </Marker>
+                )
+              ))}
+            </MapContainer>
+          </div>
+        )}
+
+        {!isLoading && !isError && viewMode === "list" && (
           <div className="space-y-4">
             {filteredPoints.map((point) => {
               const typeInfo = getTypeInfo(point.type);
@@ -215,11 +220,11 @@ const SupportMap = () => {
                         </div>
                       </div>
                       
-                      {point.neededItems && (
+                      {point.needed_items && point.needed_items.length > 0 && (
                         <div>
-                          <h4 className="font-medium text-gray-800 mb-1">Itens necessários:</h4>
+                          <h4 className="font-medium text-gray-800 mb-1">Estão precisando de:</h4>
                           <div className="flex flex-wrap gap-1">
-                            {point.neededItems.map((item, index) => (
+                            {point.needed_items.map((item, index) => (
                               <Badge key={index} variant="outline" className="text-xs bg-red-50 text-red-700 border-red-200">
                                 {item}
                               </Badge>
@@ -236,13 +241,17 @@ const SupportMap = () => {
                       )}
                       
                       <div className="flex flex-col sm:flex-row gap-2 pt-2">
-                        <Button variant="outline" size="sm" className="flex-1">
-                          <Navigation className="w-4 h-4 mr-2" />
-                          Como chegar
+                        <Button asChild variant="outline" size="sm" className="flex-1">
+                          <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(point.address)}`} target="_blank" rel="noopener noreferrer">
+                            <Navigation className="w-4 h-4 mr-2" />
+                            Como chegar
+                          </a>
                         </Button>
                         {point.phone && (
-                          <Button variant="outline" size="sm" className="flex-1">
-                            Ligar: {point.phone}
+                          <Button asChild variant="outline" size="sm" className="flex-1">
+                            <a href={`tel:${point.phone}`}>
+                              Ligar: {point.phone}
+                            </a>
                           </Button>
                         )}
                       </div>
@@ -254,7 +263,7 @@ const SupportMap = () => {
           </div>
         )}
 
-        {filteredPoints.length === 0 && (
+        {!isLoading && !isError && filteredPoints.length === 0 && (
           <div className="text-center py-12">
             <MapPin className="w-12 h-12 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-gray-600 mb-2">Nenhum local encontrado</h3>

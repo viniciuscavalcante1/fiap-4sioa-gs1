@@ -1,73 +1,83 @@
-# Welcome to your Lovable project
+# SOS Crise - Global Solution 2025.1
 
-## Project info
+## Sobre o Projeto
 
-**URL**: https://lovable.dev/projects/22d71527-4a97-482f-8fde-675fd8c4e51e
+O **SOS Crise** é uma plataforma web/mobile projetada para ser um ponto central de informações e ajuda durante crises e desastres naturais no Brasil.
 
-## How can I edit this code?
+A ideia vem da necessidade de centralizar dados confiáveis e facilitar a conexão entre quem precisa de ajuda e quem quer ajudar em momentos críticos.
 
-There are several ways of editing your application.
+### Aluno
+* **Nome:** Vinícius de Abreu Cavalcante
+* **RM:** 86108
+* **Turma:** 4SIOA
+* **Curso:** Sistemas de Informação
 
-**Use Lovable**
+---
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/22d71527-4a97-482f-8fde-675fd8c4e51e) and start prompting.
+## Funcionalidades Implementadas
 
-Changes made via Lovable will be committed automatically to this repo.
+O protótipo funcional da plataforma inclui:
 
-**Use your preferred IDE**
+* **Página Inicial:** Mostra um resumo da plataforma e os alertas mais recentes.
+* **Alertas de Emergência:** Exibe uma lista de alertas com níveis de severidade.
+* **Notícias Verificadas:** Agrega notícias de fontes confiáveis sobre prevenção, meio ambiente, doações e tecnologia.
+* **Mapa de Apoio Interativo:** Mostra um mapa com a localização de abrigos, hospitais, pontos de coleta e de distribuição de ajuda.
+* **Central "Como Ajudar":** Uma seção com três abas, para quem quer ajudar:
+    * **Doações Monetárias:** Direciona para ONGs confiáveis, para ajudar com doações.
+    * **Doação de Suprimentos:** Lista as necessidades específicas de itens em diferentes locais.
+    * **Oportunidades de Voluntariado:** Apresenta "vagas" de voluntariado.
+* **Guias de Preparo:** Conteúdo educativo que ensina a se preparar e como reagir a diferentes tipos de crises.
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+---
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+## Tecnologias Utilizadas
 
-Follow these steps:
+* **Frontend:**
+    * **Framework:** React com TypeScript e Vite
+    * **Estilização:** Tailwind CSS com a biblioteca de componentes `shadcn/ui`
+    * **Gerenciamento de Dados da API:** TanStack Query (React Query)
+    * **Mapas:** Leaflet e React-Leaflet
+    * **Renderização de Markdown:** React-Markdown
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+* **Backend:**
+    * **Framework:** FastAPI (Python)
+    * **Comunicação com o Banco:** SQLAlchemy com `asyncpg`
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+* **Banco de Dados:**
+    * PostgreSQL
 
-# Step 3: Install the necessary dependencies.
-npm i
+---
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+## Como Rodar
+
+Você precisará ter o Node.js/npm e o Python/pip instalados, e de um servidor PostgreSQL rodando.
+
+### 1. Backend
+
+Inicie o servidor do backend:
+
+```bash
+cd backend
+python -m venv venv
+source venv/bin/activate
+
+# Crie um arquivo .env com a sua DATABASE_URL
+# Ex: DATABASE_URL="postgresql+asyncpg://postgres:sua_senha@localhost:5432/sos_crise_db"
+
+# Execute o servidor
+uvicorn main:app --reload --port 8000
+```
+
+### 2. Frontend
+
+Em outro terminal, inicie o servidor do frontend:
+
+```bash
+cd frontend
+npm install
+
+# Execute o servidor de desenvolvimento
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/22d71527-4a97-482f-8fde-675fd8c4e51e) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+O app então estará disponível em `http://localhost:8080` e se comunicará com a API em `http://localhost:8000`.

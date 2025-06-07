@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
@@ -28,15 +27,15 @@ const Header = () => {
     <header className="bg-white shadow-sm border-b">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
-          {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2">
-            <div className="text-2xl font-bold">
-              <span className="text-red-600">SOS</span>
-              <span className="text-gray-800 ml-1">CRISE</span>
-            </div>
+          <Link to="/" className="flex items-center">
+            <img
+              src="/logo_bigger.png"
+              alt="Logo SOS Crise"
+              className="h-16 w-auto"
+            />
           </Link>
 
-          {/* Desktop Navigation */}
+          {/* Desktop */}
           <nav className="hidden md:flex items-center space-x-8">
             {navigationItems.map((item) => (
               <Link
@@ -66,7 +65,7 @@ const Header = () => {
           </div>
         </div>
 
-        {/* Mobile Navigation */}
+        {/* Mobile */}
         {isMobileMenuOpen && (
           <div className="md:hidden border-t bg-white">
             <nav className="py-4 space-y-2">
